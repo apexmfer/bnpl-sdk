@@ -2,7 +2,12 @@
 
 export async function generateExecuteInputs(): Promise<any> {
 
+  let inputData = require('../data/inputOrder.json')
 
+
+  let outputData = {}
+
+  console.log('output ', outputData )
   /*const database = await connectToDatabase()
 
   const newAuthTokenData = {
