@@ -1,16 +1,19 @@
-AddressZeroimport { UnhashedOrder } from "../lib/opensea-helper"
 
-import {
-  
-  OrderSide,
-   
-} from 'opensea-js/lib/types'
 
-import ethers from 'ethers'
-import { OpenseaHelper, SignedOrder, UnhashedOrder } from '../lib/opensea-helper'
+ 
+import {ethers} from 'ethers'
+
 import moment from 'moment'
 
-import { NULL_BLOCK_HASH, OPENSEA_FEE_RECIPIENT } from 'opensea-js/lib/constants'
+import { NULL_BLOCK_HASH } from 'opensea-js/lib/constants'
+
+import { OpenseaHelper, SignedOrder, UnhashedOrder } from '../lib/opensea-helper'
+ 
+const OrderSide = {
+  Buy: 0,
+  Sell: 1
+}
+
 
 export async function generateExecuteInputs(): Promise<any> {
 
@@ -18,13 +21,14 @@ export async function generateExecuteInputs(): Promise<any> {
 
   let bidSubmitArgs = {
     lendingToken: "0xc778417e063141139fce010982780140aa0cd5ab",  //wethAddress rinkeby
-    principal: inputData.laonRequired,
+    principal: inputData.loanRequired,
     duration: inputData.duration,
     APR: inputData.interestRate,
     metadataURI: "ipfs://"
   }
-
+ 
   /*
+  
 
   need to make sure that howToCall being 1 (merkle validator) is OK 
 
