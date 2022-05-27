@@ -61,15 +61,23 @@ export async function callExecute(): Promise<any> {
 
     let lenderAddress = callData.lenderAddress
 
-    lenderAddress =  "0xB11ca87E32075817C82Cc471994943a4290f4a14"
 
-    await bnplContractInstance
-    .connect(wallet)
+    //this address needs to approve the forwarder on tellerv2
+    lenderAddress =  "0xd96Ef5ed7F6978C18f4f26113759dCC20Ab7C28B"
+
+    //Set price to 1 Gwei
+    let gasPrice = utils.hexlify(8000000000);
+    //Set max gas limit to 4M
+    var gasLimit = utils.hexlify(7000000);
+
+    let unsignedTx = await bnplContractInstance
+    .populateTransaction
     .execute(callData.bidSubmitArgs, 
         lenderAddress, 
-        atomicMatchInputs ,
-         { value } )
+        atomicMatchInputs , {value, gasLimit, gasPrice} )
 
+    let response = await wallet.sendTransaction(unsignedTx);
+    console.log('response',response)
          //erc20 low level call failed (weth approval )->sending weth from lender 
     
    

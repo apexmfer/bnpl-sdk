@@ -59,7 +59,7 @@ export function buildExecuteParams(inputData:any): any {
 
 
   //deployed on rinkeby 
-  let bnplContractAddress = "0x1001374a2Ed4b486A403733dC032032711AdF3ee" 
+  let bnplContractAddress = "0xc7bf3a3dc093347e31976ea79187855d75f913c3" 
 
   let openSeaData = inputData.openSeaResponse
 
@@ -160,7 +160,7 @@ export function buildExecuteParams(inputData:any): any {
   ) 
  
 
-  let lenderAddress = "" 
+  let lenderAddress = "0xd96Ef5ed7F6978C18f4f26113759dCC20Ab7C28B" 
 
   let outputData: ExecuteParams = {
     bidSubmitArgs,
