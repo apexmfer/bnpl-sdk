@@ -9,6 +9,8 @@ import { NULL_BLOCK_HASH } from 'opensea-js/lib/constants'
 
 import { OpenseaHelper, SignedOrder, UnhashedOrder } from '../lib/opensea-helper'
  
+import fs from 'fs';
+
 const OrderSide = {
   Buy: 0,
   Sell: 1
@@ -23,7 +25,13 @@ export async function generateExecuteInputs(): Promise<any> {
   let outputData = buildExecuteParams( inputData  )
 
 
-  console.log('output ', outputData )
+  try {
+    fs.writeFileSync('data/output.json', JSON.stringify(outputData) );
+    // file written successfully
+  } catch (err) {
+    console.error(err);
+  }
+    console.log('output ', outputData )
   
  
   return true 
