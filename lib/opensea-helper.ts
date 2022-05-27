@@ -1469,7 +1469,7 @@ export const OpenseaHelper = {
   buildWyvernAtomicMatchParamsFromOrders(
     sellOrderWithSignature: SignedOrder,
     buyOrderWithSignature: SignedOrder
-  ) {
+  ) : WyvernAtomicMatchParameters {
     const metadata = undefined
 
     const args: WyvernAtomicMatchParameters = [

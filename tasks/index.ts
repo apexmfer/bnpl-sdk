@@ -1,10 +1,12 @@
  
 
+import { callExecute } from './callExecute'
 import { generateExecuteInputs } from './generateExecuteInputs'
 
  
 const taskMap: any = {
-  generateExecuteInputs
+  generateExecuteInputs,
+  callExecute
 }
 
 async function init(): Promise<void> {

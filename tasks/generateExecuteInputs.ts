@@ -10,6 +10,7 @@ import { NULL_BLOCK_HASH } from 'opensea-js/lib/constants'
 import { OpenseaHelper, SignedOrder, UnhashedOrder } from '../lib/opensea-helper'
  
 import fs from 'fs';
+import { BidSubmitArgs, ExecuteParams } from '../lib/bnpl-helper';
 
 const OrderSide = {
   Buy: 0,
@@ -41,7 +42,7 @@ export async function generateExecuteInputs(): Promise<any> {
 
 export function buildExecuteParams(inputData:any): any {
 
-  let bidSubmitArgs = {
+  let bidSubmitArgs:BidSubmitArgs = {
     lendingToken: "0xc778417e063141139fce010982780140aa0cd5ab",  //wethAddress rinkeby
     principal: inputData.tellerInputs.loanRequired,
     duration: inputData.tellerInputs.duration,
@@ -161,7 +162,7 @@ export function buildExecuteParams(inputData:any): any {
 
   let lenderAddress = "" 
 
-  let outputData = {
+  let outputData: ExecuteParams = {
     bidSubmitArgs,
     lenderAddress,
     atomicMatchInputs
