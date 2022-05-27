@@ -19,11 +19,25 @@ export async function generateExecuteInputs(): Promise<any> {
 
   let inputData = require('../data/inputOrder.json')
 
+
+  let outputData = buildExecuteParams( inputData  )
+
+
+  console.log('output ', outputData )
+  
+ 
+  return true 
+}
+
+
+
+export function buildExecuteParams(inputData:any): any {
+
   let bidSubmitArgs = {
     lendingToken: "0xc778417e063141139fce010982780140aa0cd5ab",  //wethAddress rinkeby
-    principal: inputData.loanRequired,
-    duration: inputData.duration,
-    APR: inputData.interestRate,
+    principal: inputData.tellerInputs.loanRequired,
+    duration: inputData.tellerInputs.duration,
+    APR: inputData.tellerInputs.interestRate,
     metadataURI: "ipfs://"
   }
  
@@ -34,41 +48,45 @@ export async function generateExecuteInputs(): Promise<any> {
 
   */
 
-  let bnplContractAddress = "" 
+
+  //deployed on rinkeby 
+  let bnplContractAddress = "0x1001374a2Ed4b486A403733dC032032711AdF3ee" 
+
+  let openSeaData = inputData.openSeaResponse
 
   //this comes from the opensea API 
   let sellOrderWithSignature:SignedOrder = {
-    feeMethod: inputData.feeMethod,
+    feeMethod: openSeaData.feeMethod,
     side: OrderSide.Sell,
-    saleKind: inputData.saleKind,
-    howToCall: inputData.howToCall,
-    quantity: inputData.quantity,
-    makerReferrerFee: inputData.makerReferrerFee,
-    waitingForBestCounterOrder: inputData.waitingForBestCounterOrder,
-    metadata: inputData.metadata,
-    exchange: inputData.exchange,
-    maker: inputData.maker,
-    taker: inputData.taker,
-    makerRelayerFee: inputData.makerRelayerFee,
-    takerRelayerFee: inputData.takerRelayerFee,
-    makerProtocolFee: inputData.makerProtocolFee,
-    takerProtocolFee: inputData.takerProtocolFee,
-    feeRecipient: inputData.feeRecipient,
-    target: inputData.target,
-    calldata: inputData.calldata,
-    replacementPattern: inputData.replacementPattern,
-    staticTarget: inputData.staticTarget,
-    staticExtradata: inputData.StaticExtradata,
-    paymentToken: inputData.paymentToken,
-    basePrice: inputData.basePrice,
-    extra: inputData.extra,
-    listingTime: inputData.listingTime,
-    expirationTime: inputData.expirationTime,
-    salt: inputData.salt,
-    hash: inputData.orderHash,
-    v: inputData.v, 
-    r: inputData.r,
-    s: inputData.s 
+    saleKind: openSeaData.saleKind,
+    howToCall: openSeaData.howToCall,
+    quantity: openSeaData.quantity,
+    makerReferrerFee: openSeaData.makerReferrerFee,
+    waitingForBestCounterOrder: openSeaData.waitingForBestCounterOrder,
+    metadata: openSeaData.metadata,
+    exchange: openSeaData.exchange,
+    maker: openSeaData.maker,
+    taker: openSeaData.taker,
+    makerRelayerFee: openSeaData.makerRelayerFee,
+    takerRelayerFee: openSeaData.takerRelayerFee,
+    makerProtocolFee: openSeaData.makerProtocolFee,
+    takerProtocolFee: openSeaData.takerProtocolFee,
+    feeRecipient: openSeaData.feeRecipient,
+    target: openSeaData.target,
+    calldata: openSeaData.calldata,
+    replacementPattern: openSeaData.replacementPattern,
+    staticTarget: openSeaData.staticTarget,
+    staticExtradata: openSeaData.StaticExtradata,
+    paymentToken: openSeaData.paymentToken,
+    basePrice: openSeaData.basePrice,
+    extra: openSeaData.extra,
+    listingTime: openSeaData.listingTime,
+    expirationTime: openSeaData.expirationTime,
+    salt: openSeaData.salt,
+    hash: openSeaData.orderHash,
+    v: openSeaData.v, 
+    r: openSeaData.r,
+    s: openSeaData.s 
   } 
 
   //need the sig for this  ^ 
@@ -83,31 +101,31 @@ export async function generateExecuteInputs(): Promise<any> {
 
   //we build this ourselves and dont need to sign it 
   let newBuyOrder:UnhashedOrder = {
-    feeMethod: inputData.feeMethod,
+    feeMethod: openSeaData.feeMethod,
     side: OrderSide.Buy,
-    saleKind: inputData.saleKind,
-    howToCall: inputData.howToCall,
-    quantity: inputData.quantity,
-    makerReferrerFee: inputData.makerReferrerFee,
-    waitingForBestCounterOrder: inputData.waitingForBestCounterOrder,
-    metadata: inputData.metadata,
-    exchange: inputData.exchange,
+    saleKind: openSeaData.saleKind,
+    howToCall: openSeaData.howToCall,
+    quantity: openSeaData.quantity,
+    makerReferrerFee: openSeaData.makerReferrerFee,
+    waitingForBestCounterOrder: openSeaData.waitingForBestCounterOrder,
+    metadata: openSeaData.metadata,
+    exchange: openSeaData.exchange,
     maker: bnplContractAddress,  //the buyer (bnpl contract) 
-    taker: inputData.maker,  // the seller
-    makerRelayerFee: inputData.takerRelayerFee,
-    takerRelayerFee: inputData.makerRelayerFee,
+    taker: openSeaData.maker,  // the seller
+    makerRelayerFee: openSeaData.takerRelayerFee,
+    takerRelayerFee: openSeaData.makerRelayerFee,
     makerProtocolFee: OpenseaHelper.makeBigNumber(0),
     takerProtocolFee: OpenseaHelper.makeBigNumber(0),
     feeRecipient:  ethers.constants.AddressZero,// must be zero
-    target: inputData.target,
-    calldata: inputData.calldata,
-    replacementPattern: inputData.replacementPattern,
-    staticTarget: inputData.staticTarget,
-    staticExtradata: inputData.StaticExtradata,
-    paymentToken: inputData.paymentToken,
-    basePrice: inputData.basePrice,
-    extra: inputData.extra,
-    listingTime: inputData.listingTime,
+    target: openSeaData.target,
+    calldata: openSeaData.calldata,
+    replacementPattern: openSeaData.replacementPattern,
+    staticTarget: openSeaData.staticTarget,
+    staticExtradata: openSeaData.StaticExtradata,
+    paymentToken: openSeaData.paymentToken,
+    basePrice: openSeaData.basePrice,
+    extra: openSeaData.extra,
+    listingTime: openSeaData.listingTime,
     expirationTime: OpenseaHelper.makeBigNumber(expirationTime),
     salt: OpenseaHelper.generatePseudoRandomSalt()
   } 
@@ -120,6 +138,10 @@ export async function generateExecuteInputs(): Promise<any> {
     s:NULL_BLOCK_HASH
   })
 
+  console.log('sellOrderWithSignature',sellOrderWithSignature)
+
+
+  console.log('buyOrderWithSignature',buyOrderWithSignature)
 
 
   let atomicMatchInputs = OpenseaHelper.buildWyvernAtomicMatchParamsFromOrders( 
@@ -137,10 +159,5 @@ export async function generateExecuteInputs(): Promise<any> {
     atomicMatchInputs
   }
 
-  console.log('output ', outputData )
-  
-
-  //return insert
-
-  return true 
+  return outputData 
 }
