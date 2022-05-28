@@ -13,5 +13,6 @@ export interface BidSubmitArgs {
 export interface ExecuteParams {
     bidSubmitArgs: BidSubmitArgs,
     lenderAddress: string ,
-    atomicMatchInputs: WyvernAtomicMatchParameters
+    atomicMatchInputs: WyvernAtomicMatchParameters,
+    valueWei: string
 }

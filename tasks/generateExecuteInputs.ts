@@ -1,7 +1,7 @@
 
 
  
-import {ethers} from 'ethers'
+import {ethers,Wallet} from 'ethers'
 
 import moment from 'moment'
 
@@ -16,6 +16,9 @@ const OrderSide = {
   Buy: 0,
   Sell: 1
 }
+
+require('dotenv').config()
+const MerkleValidatorABI = require('../abi/MerkleValidator.json')
 
 
 export async function generateExecuteInputs(): Promise<any> {
@@ -59,7 +62,7 @@ export function buildExecuteParams(inputData:any): any {
 
 
   //deployed on rinkeby 
-  let bnplContractAddress = "0xc7bf3a3dc093347e31976ea79187855d75f913c3" 
+  let bnplContractAddress = "0x519b957ecaa80C5aEd4C5547Ff2Eac3ff5dE229c" 
 
   let openSeaData = inputData.openSeaResponse
 
@@ -108,6 +111,42 @@ export function buildExecuteParams(inputData:any): any {
   const listingTime = minListingTimestamp - 300 // + moment.duration(1,'day').asSeconds()
   const expirationTime = listingTime + moment.duration(2, 'days').asSeconds() //getMaxOrderExpirationTimestamp()
 
+  let privateKey = process.env.WALLET_PRIVATE_KEY
+
+  let wallet = new Wallet(privateKey) 
+ 
+
+
+    const iface = new ethers.utils.Interface(MerkleValidatorABI);
+
+  /*
+  matchERC721UsingCriteria(
+        address from,
+        address to,
+        IERC721 token,
+        uint256 tokenId,
+        bytes32 root,
+        bytes32[] calldata proof*/
+
+  //0xfb16a595000000000000000000000000b11ca87e32075817c82cc471994943a4290f4a140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000388f486dbcbe05029ba7adf784459b580b4270320000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000
+  let decodedCalldata = iface.decodeFunctionData("matchERC721UsingCriteria" ,   openSeaData.calldata  )
+  //let foo = iface.functions.matchERC721UsingCriteria.decode(openSeaData.calldata)
+
+  // Prepare encoded data to be used in a function call
+  
+    console.log('decodedCalldata',decodedCalldata)
+  
+  //we s  hould do this in our contract 
+
+  let buyerDecodedCalldata = Object.assign([], decodedCalldata  )
+  buyerDecodedCalldata[1] = bnplContractAddress
+    
+ 
+  let modifiedBuyCallData = iface.encodeFunctionData( "matchERC721UsingCriteria" , buyerDecodedCalldata )
+
+  let customBuyReplacementPattern = "0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" ;
+
+ 
   //we build this ourselves and dont need to sign it 
   let newBuyOrder:UnhashedOrder = {
     feeMethod: openSeaData.feeMethod,
@@ -127,8 +166,8 @@ export function buildExecuteParams(inputData:any): any {
     takerProtocolFee: OpenseaHelper.makeBigNumber(0),
     feeRecipient:  ethers.constants.AddressZero,// must be zero
     target: openSeaData.target,
-    calldata: openSeaData.calldata,
-    replacementPattern: openSeaData.replacementPattern,
+    calldata: modifiedBuyCallData,
+    replacementPattern: customBuyReplacementPattern,
     staticTarget: openSeaData.staticTarget,
     staticExtradata: openSeaData.staticExtradata,
     paymentToken: openSeaData.paymentToken,
@@ -152,20 +191,29 @@ export function buildExecuteParams(inputData:any): any {
 
   console.log('buyOrderWithSignature',buyOrderWithSignature)
 
-
+//why cant i flip these ? 
+//static extra calldata ?
   let atomicMatchInputs = OpenseaHelper.buildWyvernAtomicMatchParamsFromOrders( 
-    sellOrderWithSignature,
-    buyOrderWithSignature
+    
+    
+    buyOrderWithSignature,
+    sellOrderWithSignature
+
+    
 
   ) 
  
 
   let lenderAddress = "0xd96Ef5ed7F6978C18f4f26113759dCC20Ab7C28B" 
 
-  let outputData: ExecuteParams = {
+  let outputData = {
     bidSubmitArgs,
     lenderAddress,
-    atomicMatchInputs
+    atomicMatchInputs,
+    valueWei: inputData.tellerInputs.downpayment,
+
+    buyOrder: newBuyOrder,
+    sellOrder: sellOrderWithSignature
   }
 
   return outputData 

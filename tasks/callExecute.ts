@@ -5,7 +5,7 @@ import { ExecuteParams } from '../lib/bnpl-helper'
 require('dotenv').config()
 
 const contractConfig = {
-    address: '0xc7bf3a3dc093347e31976ea79187855d75f913c3',
+    address: '0x519b957ecaa80C5aEd4C5547Ff2Eac3ff5dE229c',
     abi: require('../abi/BNPLMarket.json')
 }
 
@@ -22,10 +22,9 @@ export async function callExecute(): Promise<any> {
     let bnplContractInstance = new Contract(contractConfig.address,contractConfig.abi,rpcProvider)
 
     let wallet = new Wallet(privateKey).connect(rpcProvider)
+ 
 
-    let ethValue = "0.05" //50000000000000000
-
-    let value = utils.parseEther(ethValue).toHexString()
+    let value = callData.valueWei
 
     console.log('callData.atomicMatchInputs', JSON.stringify(callData.atomicMatchInputs))
     
@@ -62,13 +61,17 @@ export async function callExecute(): Promise<any> {
     let lenderAddress = callData.lenderAddress
 
 
+
+    let borrowerAddress = wallet.address
+
+
     //this address needs to approve the forwarder on tellerv2
-    lenderAddress =  "0xd96Ef5ed7F6978C18f4f26113759dCC20Ab7C28B"
+    lenderAddress =  "0xF4dAb24C52b51cB69Ab62cDE672D3c9Df0B39681"
 
     //Set price to 1 Gwei
     let gasPrice = utils.hexlify(8000000000);
     //Set max gas limit to 4M
-    var gasLimit = utils.hexlify(7000000);
+    var gasLimit = utils.hexlify(25000000);
 
     let unsignedTx = await bnplContractInstance
     .populateTransaction

@@ -1447,8 +1447,8 @@ export const OpenseaHelper = {
     }
 
     const args = OpenseaHelper.buildWyvernAtomicMatchParamsFromOrders(
-      sellOrderWithSignature,
-      buyOrderWithSignature
+      buyOrderWithSignature,
+      sellOrderWithSignature
     )
 
     const result = await exchangeContractInstance.ordersCanMatch_(
@@ -1466,9 +1466,62 @@ export const OpenseaHelper = {
     return result
   },
 
+
+
+  buildWyvernAtomicMatchParamFromOrder( 
+    orderWithSignature: SignedOrder){
+      const metadata = undefined
+
+      const args = [
+        [
+          orderWithSignature.exchange,
+          orderWithSignature.maker,
+          orderWithSignature.taker,
+          orderWithSignature.feeRecipient,
+          orderWithSignature.target,
+          orderWithSignature.staticTarget,
+          orderWithSignature.paymentToken,
+          
+        ],
+        [
+          orderWithSignature.makerRelayerFee,
+          orderWithSignature.takerRelayerFee,
+          orderWithSignature.makerProtocolFee,
+          orderWithSignature.takerProtocolFee,
+          orderWithSignature.basePrice,
+          orderWithSignature.extra,
+          orderWithSignature.listingTime,
+          orderWithSignature.expirationTime,
+          orderWithSignature.salt,
+          
+        ],
+        orderWithSignature.feeMethod,
+        orderWithSignature.side,
+        orderWithSignature.saleKind,
+        orderWithSignature.howToCall,
+       
+        orderWithSignature.calldata,
+         
+        orderWithSignature.replacementPattern,
+        
+        orderWithSignature.staticExtradata,
+         
+        orderWithSignature.v || 0 ,
+         
+          orderWithSignature.r || NULL_BLOCK_HASH,
+          orderWithSignature.s || NULL_BLOCK_HASH,
+        
+      ]
+  
+      return args
+
+
+  },
+
   buildWyvernAtomicMatchParamsFromOrders(
-    sellOrderWithSignature: SignedOrder,
-    buyOrderWithSignature: SignedOrder
+    buyOrderWithSignature: SignedOrder,
+    sellOrderWithSignature: SignedOrder
+    
   ) : WyvernAtomicMatchParameters {
     const metadata = undefined
 
@@ -1545,8 +1598,8 @@ export const OpenseaHelper = {
     buyOrderWithSignature: SignedOrder
   ) {
     const args = OpenseaHelper.buildWyvernAtomicMatchParamsFromOrders(
-      sellOrderWithSignature,
-      buyOrderWithSignature
+      buyOrderWithSignature,
+      sellOrderWithSignature
     )
 
     const result = await exchangeContractInstance

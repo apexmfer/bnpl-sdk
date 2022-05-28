@@ -1,0 +1,200 @@
+
+import {Contract, Wallet, providers, utils} from 'ethers'
+import { ExecuteParams } from '../lib/bnpl-helper'
+import { OpenseaHelper } from '../lib/opensea-helper'
+
+require('dotenv').config()
+
+ 
+
+const wyvernConfig = {
+    address: '0xdd54d660178b28f6033a953b0e55073cfa7e3744',
+    abi: require('../abi/ExchangeCore.json')
+}
+
+
+export async function matchOrder(): Promise<any> {
+
+    
+    let callData = require('../data/output.json')
+
+    let rpcURI = process.env.RINKEBY_RPC_URL
+    let privateKey = process.env.WALLET_PRIVATE_KEY
+
+    let rpcProvider = new providers.JsonRpcProvider( rpcURI )
+    
+     
+    let wyvernContractInstance = new Contract(wyvernConfig.address,wyvernConfig.abi,rpcProvider)
+
+    let wallet = new Wallet(privateKey).connect(rpcProvider)
+ 
+               
+    let value = '100000000000000000' //callData.valueWei
+
+    console.log('callData.atomicMatchInputs', JSON.stringify(callData.atomicMatchInputs))
+    
+
+ 
+
+    /* 
+    
+    struct AtomicMatchInputs {
+        address[14] addrs;
+        uint256[18] uints;
+        uint8[8] feeMethodsSidesKindsHowToCalls;
+        bytes calldataBuy;
+        bytes calldataSell;
+        bytes replacementPatternBuy;
+        bytes replacementPatternSell;
+        uint8[2] vs;
+        bytes32[5] rssMetadata;
+    }
+    */
+
+    let lenderAddress = callData.lenderAddress
+
+
+
+    let borrowerAddress = wallet.address
+
+
+    //this address needs to approve the forwarder on tellerv2
+    lenderAddress =  "0xF4dAb24C52b51cB69Ab62cDE672D3c9Df0B39681"
+
+    //Set price to 1 Gwei
+    let gasPrice = utils.hexlify(8000000000);
+    //Set max gas limit to 4M
+    var gasLimit = utils.hexlify(25000000);
+
+
+    let sellOrderParams = OpenseaHelper.buildWyvernAtomicMatchParamFromOrder( 
+      callData.sellOrder  )
+
+   let validateSell = await wyvernContractInstance.validateOrder_( 
+    sellOrderParams[0],
+    sellOrderParams[1],
+    sellOrderParams[2],
+    sellOrderParams[3],
+     sellOrderParams[4],
+     sellOrderParams[5],
+     sellOrderParams[6],
+     sellOrderParams[7],
+     sellOrderParams[8],
+     sellOrderParams[9],
+     sellOrderParams[10],
+     sellOrderParams[11],
+   )
+   console.log('validateSell',validateSell)
+
+
+   let sellOrderHash = await wyvernContractInstance.hashOrder_( 
+    sellOrderParams[0],
+    sellOrderParams[1],
+    sellOrderParams[2],
+    sellOrderParams[3],
+     sellOrderParams[4],
+     sellOrderParams[5],
+     sellOrderParams[6],
+     sellOrderParams[7],
+     sellOrderParams[8],
+   )
+   console.log('sellOrderHash',sellOrderHash)
+
+
+   let sellOrderHashToSign = await wyvernContractInstance.hashToSign_( 
+    sellOrderParams[0],
+    sellOrderParams[1],
+    sellOrderParams[2],
+    sellOrderParams[3],
+     sellOrderParams[4],
+     sellOrderParams[5],
+     sellOrderParams[6],
+     sellOrderParams[7],
+     sellOrderParams[8],
+   )
+   console.log('sellOrderHashToSign',sellOrderHashToSign)
+
+   //0x90fbbb5556cf59aabad2cecbed8d7f829eeebfc7be93f8b6117c235e769be03b
+   ///this should equal order hash right ? 
+
+
+
+    //buy order i am constructing is invalid !! 
+    let buyOrderParams = OpenseaHelper.buildWyvernAtomicMatchParamFromOrder( 
+       callData.buyOrder  )
+
+    let validateBuy = await wyvernContractInstance.validateOrderParameters_( 
+      buyOrderParams[0],
+      buyOrderParams[1],
+      buyOrderParams[2],
+      buyOrderParams[3],
+      buyOrderParams[4],
+      buyOrderParams[5],
+      buyOrderParams[6],
+      buyOrderParams[7],
+      buyOrderParams[8],
+    )
+
+    console.log('validateBuy',validateBuy)
+
+
+    let canMatch = await wyvernContractInstance.ordersCanMatch_(
+      callData.atomicMatchInputs[0], 
+      callData.atomicMatchInputs[1],
+      callData.atomicMatchInputs[2],
+      callData.atomicMatchInputs[3],
+      callData.atomicMatchInputs[4],
+      callData.atomicMatchInputs[5],
+      callData.atomicMatchInputs[6],
+      callData.atomicMatchInputs[7],
+      callData.atomicMatchInputs[8], 
+    )
+
+    console.log('canMatch',canMatch)
+
+     
+
+    let matchPrice = await wyvernContractInstance.calculateMatchPrice_(
+      callData.atomicMatchInputs[0], 
+      callData.atomicMatchInputs[1],
+      callData.atomicMatchInputs[2],
+      callData.atomicMatchInputs[3],
+      callData.atomicMatchInputs[4],
+      callData.atomicMatchInputs[5],
+      callData.atomicMatchInputs[6],
+      callData.atomicMatchInputs[7],
+      callData.atomicMatchInputs[8], 
+
+    )
+    
+    console.log('matchPrice',matchPrice.toString())
+
+
+ 
+    let unsignedTx = await wyvernContractInstance
+    .populateTransaction
+    .atomicMatch_( 
+      callData.atomicMatchInputs[0],
+      callData.atomicMatchInputs[1],
+      callData.atomicMatchInputs[2],
+      callData.atomicMatchInputs[3],//calldata buy 
+      callData.atomicMatchInputs[4],//calldata sell
+      callData.atomicMatchInputs[5],
+      callData.atomicMatchInputs[6],
+      callData.atomicMatchInputs[7],
+      callData.atomicMatchInputs[8],
+      callData.atomicMatchInputs[9], 
+      callData.atomicMatchInputs[10],
+      {value, gasLimit, gasPrice} )
+
+    let response = await wallet.sendTransaction(unsignedTx);
+    console.log('response',response)
+         //erc20 low level call failed (weth approval )->sending weth from lender 
+    
+   
+    return true 
+  }
+  
+  
+
+  

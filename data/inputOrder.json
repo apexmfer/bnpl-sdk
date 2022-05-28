@@ -43,7 +43,7 @@
   },
   "tellerInputs": {
     "downpayment": "50000000000000000",
-    "loanRequired": "52659294365455504",
+    "loanRequired":"52659294365455504",
     "interestRate": 3000,
     "duration": 7776000
   }
