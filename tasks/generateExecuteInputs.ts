@@ -117,7 +117,7 @@ export function buildExecuteParams(inputData:any): any {
  
 
 
-    const iface = new ethers.utils.Interface(MerkleValidatorABI);
+  const iface = new ethers.utils.Interface(MerkleValidatorABI);
 
   /*
   matchERC721UsingCriteria(
@@ -188,22 +188,15 @@ export function buildExecuteParams(inputData:any): any {
 
   console.log('sellOrderWithSignature',sellOrderWithSignature)
 
-
   console.log('buyOrderWithSignature',buyOrderWithSignature)
 
 //why cant i flip these ? 
 //static extra calldata ?
   let atomicMatchInputs = OpenseaHelper.buildWyvernAtomicMatchParamsFromOrders( 
-    
-    
     buyOrderWithSignature,
     sellOrderWithSignature
-
-    
-
   ) 
  
-
   let lenderAddress = "0xd96Ef5ed7F6978C18f4f26113759dCC20Ab7C28B" 
 
   let outputData = {
@@ -211,7 +204,6 @@ export function buildExecuteParams(inputData:any): any {
     lenderAddress,
     atomicMatchInputs,
     valueWei: inputData.tellerInputs.downpayment,
-
     buyOrder: newBuyOrder,
     sellOrder: sellOrderWithSignature
   }
