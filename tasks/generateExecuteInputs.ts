@@ -17,6 +17,9 @@ const OrderSide = {
   Sell: 1
 }
 
+let contractsConfig = require('../data/contractsConfig.json')['rinkeby']
+
+
 require('dotenv').config()
 const MerkleValidatorABI = require('../abi/MerkleValidator.json')
 
@@ -62,7 +65,7 @@ export function buildExecuteParams(inputData:any): any {
 
 
   //deployed on rinkeby 
-  let bnplContractAddress = "0x519b957ecaa80C5aEd4C5547Ff2Eac3ff5dE229c" 
+  let bnplContractAddress = contractsConfig.BNPLContract.address
 
   let openSeaData = inputData.openSeaResponse
 

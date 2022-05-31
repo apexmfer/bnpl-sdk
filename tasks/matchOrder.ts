@@ -5,13 +5,17 @@ import { OpenseaHelper } from '../lib/opensea-helper'
 
 require('dotenv').config()
 
- 
+let contractsConfig = require('../data/contractsConfig.json')['rinkeby']
 
 const wyvernConfig = {
-    address: '0xdd54d660178b28f6033a953b0e55073cfa7e3744',
+    address: contractsConfig.wyvern.address,
     abi: require('../abi/ExchangeCore.json')
 }
 
+const bnplConfig = {
+  address: contractsConfig.BNPLContract.address,
+  abi: require('../abi/BNPLMarket.json')
+}
 
 export async function matchOrder(): Promise<any> {
 
@@ -23,7 +27,7 @@ export async function matchOrder(): Promise<any> {
 
     let rpcProvider = new providers.JsonRpcProvider( rpcURI )
     
-     
+    let bnplContractInstance = new Contract(bnplConfig.address, bnplConfig.abi, rpcProvider )
     let wyvernContractInstance = new Contract(wyvernConfig.address,wyvernConfig.abi,rpcProvider)
 
     let wallet = new Wallet(privateKey).connect(rpcProvider)
@@ -170,7 +174,7 @@ export async function matchOrder(): Promise<any> {
     console.log('matchPrice',matchPrice.toString())
 
 
- 
+ /*
     let unsignedTx = await wyvernContractInstance
     .populateTransaction
     .atomicMatch_( 
@@ -186,6 +190,15 @@ export async function matchOrder(): Promise<any> {
       callData.atomicMatchInputs[9], 
       callData.atomicMatchInputs[10],
       {value, gasLimit, gasPrice} )
+      */
+
+
+      let unsignedTx = await bnplContractInstance
+      .populateTransaction
+      .atomicMatchThrough_( 
+        callData.atomicMatchInputs, value,
+        {value, gasLimit, gasPrice} )
+ 
 
     let response = await wallet.sendTransaction(unsignedTx);
     console.log('response',response)

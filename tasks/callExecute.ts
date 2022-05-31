@@ -4,8 +4,14 @@ import { ExecuteParams } from '../lib/bnpl-helper'
 
 require('dotenv').config()
 
+
+
+let contractsConfig = require('../data/contractsConfig.json')['rinkeby']
+
+
+//was 0x519b957ecaa80C5aEd4C5547Ff2Eac3ff5dE229c
 const contractConfig = {
-    address: '0x519b957ecaa80C5aEd4C5547Ff2Eac3ff5dE229c',
+    address: contractsConfig.BNPLContract.address,
     abi: require('../abi/BNPLMarket.json')
 }
 
