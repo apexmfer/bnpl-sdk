@@ -10,10 +10,15 @@ let contractsConfig = require('../data/contractsConfig.json')['rinkeby']
 
 
 //was 0x519b957ecaa80C5aEd4C5547Ff2Eac3ff5dE229c
-const contractConfig = {
+const tellerV2Config = {
+    address: contractsConfig.tellerV2.address,
+    abi: require('../abi/TellerV2.json')
+}
+
+const bnplConfig = {
     address: contractsConfig.BNPLContract.address,
     abi: require('../abi/BNPLMarket.json')
-}
+  }
 
 
 export async function callExecute(): Promise<any> {
@@ -24,8 +29,9 @@ export async function callExecute(): Promise<any> {
     let privateKey = process.env.WALLET_PRIVATE_KEY
 
     let rpcProvider = new providers.JsonRpcProvider( rpcURI )
-  
-    let bnplContractInstance = new Contract(contractConfig.address,contractConfig.abi,rpcProvider)
+    
+    let tellerV2Instance = new Contract(tellerV2Config.address,tellerV2Config.abi, rpcProvider)
+    let bnplContractInstance = new Contract(bnplConfig.address,bnplConfig.abi,rpcProvider)
 
     let wallet = new Wallet(privateKey).connect(rpcProvider)
  
@@ -70,9 +76,19 @@ export async function callExecute(): Promise<any> {
 
     let borrowerAddress = wallet.address
 
+    let isApproved = await tellerV2Instance.hasApprovedMarketForwarder(2, bnplContractInstance.address, lenderAddress)
+    console.log('lender has approved BNPL as forwarder: ',isApproved)
+
+    if(!isApproved) {
+        console.error('ERROR: lender has not approved bnpl as forwarder ')
+        return 
+    }
+      
+
+
 
     //this address needs to approve the forwarder on tellerv2
-    lenderAddress =  "0xF4dAb24C52b51cB69Ab62cDE672D3c9Df0B39681"
+  //  lenderAddress =  "0xF4dAb24C52b51cB69Ab62cDE672D3c9Df0B39681"
 
     //Set price to 1 Gwei
     let gasPrice = utils.hexlify(8000000000);
@@ -81,7 +97,8 @@ export async function callExecute(): Promise<any> {
 
     let unsignedTx = await bnplContractInstance
     .populateTransaction
-    .execute(callData.bidSubmitArgs, 
+    .execute(
+        callData.bidSubmitArgs, 
         lenderAddress, 
         atomicMatchInputs , {value, gasLimit, gasPrice} )
 

@@ -193,10 +193,26 @@ export async function matchOrder(): Promise<any> {
       */
 
 
+      const atomicMatchInputs = {
+        addrs: callData.atomicMatchInputs[0],
+        uints: callData.atomicMatchInputs[1],
+        feeMethodsSidesKindsHowToCalls: callData.atomicMatchInputs[2],
+        calldataBuy: callData.atomicMatchInputs[3],
+        calldataSell: callData.atomicMatchInputs[4],
+        replacementPatternBuy: callData.atomicMatchInputs[5],
+        replacementPatternSell: callData.atomicMatchInputs[6],
+        //args 7 and 8 must be null for this to work -- they typically are
+        vs: callData.atomicMatchInputs[9],
+        rssMetadata: callData.atomicMatchInputs[10],
+      }
+
+     // let exchangeAddress = await bnplContractInstance.exchange()
+ 
+
       let unsignedTx = await bnplContractInstance
       .populateTransaction
       .atomicMatchThrough_( 
-        callData.atomicMatchInputs, value,
+        atomicMatchInputs, value,
         {value, gasLimit, gasPrice} )
  
 
