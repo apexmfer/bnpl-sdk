@@ -88,8 +88,7 @@ export async function matchOrder(): Promise<any> {
      sellOrderParams[10],
      sellOrderParams[11],
    )
-   console.log('validateSell',validateSell)
-
+  
 
    let sellOrderHash = await wyvernContractInstance.hashOrder_( 
     sellOrderParams[0],
@@ -102,9 +101,7 @@ export async function matchOrder(): Promise<any> {
      sellOrderParams[7],
      sellOrderParams[8],
    )
-   console.log('sellOrderHash',sellOrderHash)
-
-
+   
    let sellOrderHashToSign = await wyvernContractInstance.hashToSign_( 
     sellOrderParams[0],
     sellOrderParams[1],
@@ -116,14 +113,10 @@ export async function matchOrder(): Promise<any> {
      sellOrderParams[7],
      sellOrderParams[8],
    )
-   console.log('sellOrderHashToSign',sellOrderHashToSign)
-
+    
    //0x90fbbb5556cf59aabad2cecbed8d7f829eeebfc7be93f8b6117c235e769be03b
    ///this should equal order hash right ? 
-
-
-
-    //buy order i am constructing is invalid !! 
+ 
     let buyOrderParams = OpenseaHelper.buildWyvernAtomicMatchParamFromOrder( 
        callData.buyOrder  )
 
@@ -139,9 +132,7 @@ export async function matchOrder(): Promise<any> {
       buyOrderParams[8],
     )
 
-    console.log('validateBuy',validateBuy)
-
-
+ 
     let canMatch = await wyvernContractInstance.ordersCanMatch_(
       callData.atomicMatchInputs[0], 
       callData.atomicMatchInputs[1],
@@ -154,9 +145,7 @@ export async function matchOrder(): Promise<any> {
       callData.atomicMatchInputs[8], 
     )
 
-    console.log('canMatch',canMatch)
-
-     
+  
 
     let matchPrice = await wyvernContractInstance.calculateMatchPrice_(
       callData.atomicMatchInputs[0], 
@@ -170,10 +159,7 @@ export async function matchOrder(): Promise<any> {
       callData.atomicMatchInputs[8], 
 
     )
-    
-    console.log('matchPrice',matchPrice.toString())
-
-
+     
  /*
     let unsignedTx = await wyvernContractInstance
     .populateTransaction

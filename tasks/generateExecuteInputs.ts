@@ -28,13 +28,13 @@ export async function generateExecuteInputs(): Promise<any> {
 
   let inputData = require('../data/inputOrder.json')
 
+  inputData.lenderAddress = "0xF4dAb24C52b51cB69Ab62cDE672D3c9Df0B39681"
 
   let outputData = buildExecuteParams( inputData  )
 
 
   try {
     fs.writeFileSync('data/output.json', JSON.stringify(outputData) );
-    // file written successfully
   } catch (err) {
     console.error(err);
   }
@@ -55,9 +55,13 @@ export function buildExecuteParams(inputData:any): any {
     APR: inputData.tellerInputs.interestRate,
     metadataURI: "ipfs://"
   }
+
+
+  let lenderAddress = inputData.lenderAddress// "0xF4dAb24C52b51cB69Ab62cDE672D3c9Df0B39681"
+
+
  
-  /*
-  
+  /* 
 
   need to make sure that howToCall being 1 (merkle validator) is OK 
 
@@ -103,11 +107,7 @@ export function buildExecuteParams(inputData:any): any {
     r: openSeaData.r,
     s: openSeaData.s 
   } 
-
-  //need the sig for this  ^ 
-
-
-  //waitingForBestCounterOrder should be false 
+ 
 
   const minListingTimestamp = Math.round(Date.now() / 1000)
 
@@ -133,13 +133,12 @@ export function buildExecuteParams(inputData:any): any {
 
   //0xfb16a595000000000000000000000000b11ca87e32075817c82cc471994943a4290f4a140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000388f486dbcbe05029ba7adf784459b580b4270320000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000
   let decodedCalldata = iface.decodeFunctionData("matchERC721UsingCriteria" ,   openSeaData.calldata  )
-  //let foo = iface.functions.matchERC721UsingCriteria.decode(openSeaData.calldata)
-
+ 
   // Prepare encoded data to be used in a function call
   
     console.log('decodedCalldata',decodedCalldata)
   
-  //we s  hould do this in our contract 
+  //we should do this in our contract 
 
   let buyerDecodedCalldata = Object.assign([], decodedCalldata  )
   buyerDecodedCalldata[1] = bnplContractAddress
@@ -189,20 +188,15 @@ export function buildExecuteParams(inputData:any): any {
     s:NULL_BLOCK_HASH
   })
 
-  console.log('sellOrderWithSignature',sellOrderWithSignature)
-
-  console.log('buyOrderWithSignature',buyOrderWithSignature)
-
-//why cant i flip these ? 
-//static extra calldata ?
+  
+ 
   let atomicMatchInputs = OpenseaHelper.buildWyvernAtomicMatchParamsFromOrders( 
     buyOrderWithSignature,
     sellOrderWithSignature
   ) 
  
-  //let lenderAddress = "0xd96Ef5ed7F6978C18f4f26113759dCC20Ab7C28B" 
-  let lenderAddress =  "0xF4dAb24C52b51cB69Ab62cDE672D3c9Df0B39681"
-
+   
+ 
   
   let outputData = {
     bidSubmitArgs,
